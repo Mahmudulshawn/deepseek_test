@@ -12,7 +12,6 @@ export default function Home() {
     setLoading(true);
     try {
       console.log("fetching");
-
       const response = await fetch(
         "https://openrouter.ai/api/v1/chat/completions",
         {
@@ -34,7 +33,7 @@ export default function Home() {
       );
 
       const data = await response.json();
-      console.log(data.choices?.[0]?.message?.content);
+      // console.log(data.choices?.[0]?.message?.content);
       setResponse(
         data.choices?.[0]?.message?.content || "No response received!"
       );
