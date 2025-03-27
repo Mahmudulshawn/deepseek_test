@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Markdown from "react-markdown";
 import { RingLoader } from "react-spinners";
 
 export default function Home() {
@@ -10,6 +11,8 @@ export default function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setResponse("");
+
     try {
       console.log("fetching");
       const response = await fetch(
@@ -46,29 +49,8 @@ export default function Home() {
     }
   };
 
-  const formatResponse = (text) => {
-    // Define patterns to match terms that need special formatting
-    const patterns = [
-      {
-        regex: /\b([A-Z][a-z]+(?: [A-Z][a-z]+)*)\b/g,
-        className: "font-bold text-blue-400/70",
-      }, // Proper nouns like places (Capitalized words)
-    ];
-
-    let formattedText = text;
-
-    // Loop through each pattern to replace matched terms with HTML spans
-    patterns.forEach(({ regex, className }) => {
-      formattedText = formattedText.replace(regex, (match) => {
-        return `<span class="${className}">${match}</span>`;
-      });
-    });
-
-    return formattedText;
-  };
-
   return (
-    <div className="h-[100vh] pb-10 w-full pt-10 flex flex-col items-center bg-gray-900 text-white">
+    <div className="min-h-screen pb-10 w-full pt-10 flex flex-col items-center bg-gray-900 text-white">
       <form onSubmit={handleSubmit} className="p-4 flex gap-6">
         <input
           type="text"
@@ -91,8 +73,13 @@ export default function Home() {
           {/* User's Prompt */}
           {promt && (
             <>
-            <label htmlFor="user" className="font-bold text-end pr-4">YOU </label>
-              <div id="user" className="p-4 bg-blue-500 text-white rounded-lg max-w-md self-end">
+              <label htmlFor="user" className="font-bold text-end pr-4">
+                YOU{" "}
+              </label>
+              <div
+                id="user"
+                className="p-4 bg-blue-500 text-white rounded-lg max-w-md self-end"
+              >
                 {promt}
               </div>
             </>
@@ -101,22 +88,25 @@ export default function Home() {
           {/* AI's Response */}
           {loading ? (
             <div className="p-4 flex justify-center items-center bg-gray-800 text-white rounded-lg max-w-md">
-              <RingLoader color="#25c2c7"/>{" "}
+              <RingLoader color="#25c2c7" />{" "}
             </div>
           ) : (
             response && (
               <>
-                <label htmlFor="ai" className="font-bold pl-4">AI: </label>
+                <label htmlFor="ai" className="font-bold pl-4">
+                  AI:{" "}
+                </label>
                 <div
                   id="ai"
-                  className="p-4 bg-gray-800 text-white rounded-lg max-w-md"
+                  className="p-4 bg-gray-800 text-white rounded-lg max-w-lg overflow-x-scroll"
                 >
                   <div
                     className="mt-2"
-                    dangerouslySetInnerHTML={{
-                      __html: formatResponse(response),
-                    }}
+                    // dangerouslySetInnerHTML={{
+                    //   __html: formatResponse(response),
+                    // }}
                   />
+                  <Markdown>{response}</Markdown>
                 </div>
               </>
             )

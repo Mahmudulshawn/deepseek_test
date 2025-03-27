@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
 
+body{
+    p,a,li{
+        margin-top: 5px;
+    }
+    strong{
+        font-weight: 600;
+        font-size: larger;
+    }
+}
+
+
 
 
