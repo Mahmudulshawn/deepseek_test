@@ -1,17 +1,21 @@
 "use client";
-import { useState } from "react";
+import { parse } from "path";
+import { useRef, useState } from "react";
 import Markdown from "react-markdown";
-import { RingLoader } from "react-spinners";
 
 export default function Home() {
   const [response, setResponse] = useState("");
   const [promt, setPromt] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const responseRef = useRef();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setResponse("");
+    
+    responseRef.current = "";
 
     try {
       console.log("fetching");
@@ -24,25 +28,58 @@ export default function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "deepseek/deepseek-r1:free",
+            model: "deepseek/deepseek-chat-v3-0324:free",
             messages: [
               {
                 role: "user",
                 content: promt,
               },
             ],
+            stream: true,
           }),
         }
       );
 
-      const data = await response.json();
-      // console.log(data.choices?.[0]?.message?.content);
-      setResponse(
-        data.choices?.[0]?.message?.content || "No response received!"
-      );
-      setPromt("");
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("Response body is not readable");
+      }
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          // Append new chunk to buffer
+          buffer += decoder.decode(value, { stream: true });
+          // Process complete lines from buffer
+          while (true) {
+            const lineEnd = buffer.indexOf("\n");
+            if (lineEnd === -1) break;
+            const line = buffer.slice(0, lineEnd).trim();
+            buffer = buffer.slice(lineEnd + 1);
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") break;
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices[0].delta.content;
+                if (content) {
+                  responseRef.current += content; // Update response in real-time
+                  setResponse(responseRef.current);
+                }
+              } catch (e) {
+                console.log(e);
+                console.log("streaming failed!");
+              }
+            }
+          }
+        }
+      } finally {
+        reader.cancel();
+      }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error: ", error);
       setResponse("An error occurred.");
     } finally {
       setLoading(false);
@@ -85,12 +122,8 @@ export default function Home() {
             </>
           )}
 
-          {/* AI's Response */}
-          {loading ? (
-            <div className="p-4 flex justify-center items-center bg-gray-800 text-white rounded-lg max-w-md">
-              <RingLoader color="#25c2c7" />{" "}
-            </div>
-          ) : (
+          {/* AI response */}
+          {(
             response && (
               <>
                 <label htmlFor="ai" className="font-bold pl-4">
@@ -100,12 +133,7 @@ export default function Home() {
                   id="ai"
                   className="p-4 bg-gray-800 text-white rounded-lg max-w-lg overflow-x-scroll"
                 >
-                  <div
-                    className="mt-2"
-                    // dangerouslySetInnerHTML={{
-                    //   __html: formatResponse(response),
-                    // }}
-                  />
+                  <div className="mt-2" />
                   <Markdown>{response}</Markdown>
                 </div>
               </>
