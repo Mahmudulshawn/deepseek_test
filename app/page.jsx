@@ -6,15 +6,13 @@ import Markdown from "react-markdown";
 export default function Home() {
   const [response, setResponse] = useState("");
   const [promt, setPromt] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const responseRef = useRef();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setResponse("");
-    
+
     responseRef.current = "";
 
     try {
@@ -81,8 +79,6 @@ export default function Home() {
     } catch (error) {
       console.error("Error: ", error);
       setResponse("An error occurred.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -123,21 +119,19 @@ export default function Home() {
           )}
 
           {/* AI response */}
-          {(
-            response && (
-              <>
-                <label htmlFor="ai" className="font-bold pl-4">
-                  AI:{" "}
-                </label>
-                <div
-                  id="ai"
-                  className="p-4 bg-gray-800 text-white rounded-lg max-w-lg overflow-x-scroll"
-                >
-                  <div className="mt-2" />
-                  <Markdown>{response}</Markdown>
-                </div>
-              </>
-            )
+          {response && (
+            <>
+              <label htmlFor="ai" className="font-bold pl-4">
+                AI:{" "}
+              </label>
+              <div
+                id="ai"
+                className="p-4 bg-gray-800 text-white rounded-lg max-w-lg overflow-x-scroll"
+              >
+                <div className="mt-2" />
+                <Markdown>{response}</Markdown>
+              </div>
+            </>
           )}
         </div>
       </div>
