@@ -27,7 +27,7 @@ export default function Home() {
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_DEEPSEEK_R1_API_KEY}`,
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
