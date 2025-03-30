@@ -1,6 +1,6 @@
 "use client";
 import { parse } from "path";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 
 export default function Home() {
@@ -8,6 +8,11 @@ export default function Home() {
   const [promt, setPromt] = useState("");
 
   const responseRef = useRef();
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    endRef.current.scrollIntoView({behavior: "smooth"});
+  }, [response, promt]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -126,7 +131,7 @@ export default function Home() {
               </label>
               <div
                 id="ai"
-                className="p-4 bg-gray-800 text-white rounded-lg max-w-lg overflow-x-scroll"
+                className="ai-res p-4 bg-gray-800 text-white rounded-lg max-w-lg overflow-x-scroll"
               >
                 <div className="mt-2" />
                 <Markdown>{response}</Markdown>
@@ -135,6 +140,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      <div ref={endRef} />
     </div>
   );
 }

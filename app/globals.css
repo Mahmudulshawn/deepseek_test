@@ -11,6 +11,14 @@ body{
     }
 }
 
+.ai-res::-webkit-scrollbar {
+    display: none;
+}
+
+.ai-res{
+    -ms-overflow-style: none;   /* Internet Explorer 10+ */
+    scrollbar-width: none;      /* firefox */
+}
 
 
 
